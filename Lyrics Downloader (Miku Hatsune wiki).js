@@ -1,7 +1,7 @@
 ﻿// ==PREPROCESSOR==
 // @name "Lyrics Downloader (Miku Hatsune wiki)"
 // @version "1.09"
-// @author "Tomato"
+// @author "tomato111"
 // ==/PREPROCESSOR==
 
 var scriptName = "Lyrics Downloader (Miku Hatsune wiki)";
