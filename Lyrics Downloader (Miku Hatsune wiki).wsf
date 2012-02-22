@@ -1,0 +1,246 @@
+// @name "Lyrics Downloader (Miku Hatsune wiki)"
+// @version "1.08"
+// @author "Tomato"
+
+<job id="main">
+<script language="VBScript">
+    Function prompt(text, title, defaultText)
+    prompt = InputBox(text, title, defaultText)
+    End Function
+</script>
+<script language="JavaScript">
+
+    //==Global variable=========================
+
+    var fs = new ActiveXObject("Scripting.FileSystemObject");
+    var ws = new ActiveXObject("WScript.Shell");
+    var sa = new ActiveXObject("Shell.Application");
+
+    var args = WScript.Arguments;
+    var mio = null;
+
+    onLoaded.debug = false; // for debug
+
+    //==function====================================
+
+    String.prototype.replaceStr = function () {
+        var str = this;
+        if (arguments.length % 2)
+            ws.Popup("escapeStrメソッドへの引数が不正です");
+        else {
+            for (var i = 0; i < arguments.length; i += 2) {
+                var re = new RegExp("\\" + arguments[i], "g");
+                str = str.replace(re, arguments[i + 1]);
+            }
+        }
+        return str;
+    }
+
+    function codeBoolean(code, n) {
+        if (n == 1) // CharacterCode mode
+            if (!code || !code.match(/^(?:Unicode|Shift_JIS|EUC-JP|UTF-8)$/i))
+                return false;
+        if (n == 2) // LineFeedCode mode
+            if (!code || !code.match(/^(?:CR\+LF|CR|LF)$/i))
+                return false;
+        return true;
+    }
+
+    function createQuery(word) {
+        return "http://www5.atwiki.jp/hmiku/?cmd=search&keyword=" + encodeURI(word).replace(/\+/g, "%2B") + "&andor=and&ignore=1";
+    }
+
+    function getFile(data, method, fileName, async, type, found) { // type= 1:txt  2:xml
+        var request = new ActiveXObject("Msxml2.XMLHTTP");
+        getFile.PRESENT = fileName;
+
+        request.open(method, fileName, async);
+
+        request.onreadystatechange = function () {
+            if (request.readyState == 4) {
+                onLoaded(request, type, found);
+            }
+        }
+
+        request.setRequestHeader("content-type", "application/x-www-form-urlencoded");
+        request.send(data);
+    }
+
+    function onLoaded(request, type, found) {
+        if (type == 1) {
+            var res = request.responseText;
+            var resArray = res.split('\n');
+
+            var Page = new AnalyzePage(resArray, found);
+            if (Page.FoundPage) {
+                getFile(null, "GET", Page.FoundPage, false, 1, true);
+            }
+            else if (found == -1) {
+                getFile(null, "GET", createQuery(mio.title + " " + mio.artist), false, 1, -2);
+            }
+            Page.errorMes && Page.errorMes();
+            Page.FoundLyrics && outputText(Page.Lyrics, Page.Info);
+        }
+
+        if (type == 2) {
+            //        res = request.responseXML;
+            //        var objXML = new ActiveXObject("MSXML2.DOMDocument");
+            //        objXML.load(res);
+            //        var objNodes = objXML.childNodes;
+            //        Cscript.Echo(objNodes(0));
+        }
+    }
+
+    function AnalyzePage(resArray, found) {
+        var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title + '.*?)">' : 'id_[a-z0-9]{8}|^作詞|^作曲|^編曲|^唄');
+        var lyricsFlag = false, id = null, intButton = null, foundPage = null;
+        var aimai = false, mat = false, isCD = false;
+
+        if (found !== true) {
+            onLoaded.debug && WScript.Echo("\n===for debug=============\n");
+            for (var i = 0; i < resArray.length; i++)
+                if (re.test(resArray[i])) {
+                    onLoaded.debug && WScript.Echo("TITLE: " + RegExp.$2 + " URL: " + RegExp.$1);
+                    if (RegExp.$2 == mio.title)
+                        foundPage = RegExp.$1.replace(/amp;/g, "");
+                    if (RegExp.$2.indexOf(mio.title + "/") == 0 && RegExp.$2.indexOf(mio.title + "/過去ログ") != 0 && RegExp.$2.indexOf(mio.title + "/CD") != 0)
+                        !aimai && (aimai = true) && onLoaded.debug && WScript.Echo("aimai turn true");
+                    if (RegExp.$2 == mio.title + "/" + mio.artist) {
+                        foundPage = RegExp.$1.replace(/amp;/g, "");
+                        mat = true;
+                        onLoaded.debug && WScript.Echo("match and break");
+                        break;
+                    }
+                }
+            if (foundPage && !aimai || foundPage && mat) {
+                this.FoundPage = foundPage;
+                onLoaded.debug && WScript.Echo("\nOpen: " + foundPage + "\n");
+            }
+            else if (found == -2) {
+                this.errorMes = function () {
+                    var mes = aimai ? "ページが取得出来ませんでした。\nアーティスト名が間違っていないか確認してください。" : "ページが見つかりませんでした。";
+                    var intButton = ws.Popup(mes + "\n\ブラウザで開きますか？", 0, "確認", 36);
+                    if (intButton == 6)
+                        sa.ShellExecute('"' + getFile.PRESENT + '"', "", "", "open", 1);
+                }
+            }
+        }
+
+        else {
+            this.Info = mio.title + mio.LineFeedCode + mio.LineFeedCode;
+            this.Lyrics = "";
+            for (i = 0; i < resArray.length; i++) {
+                id = resArray[i].match(re);
+                onLoaded.debug && id && WScript.Echo(i + 1 + "行目: " + id);
+                if (id) {
+                    if (id == "id_0a172479") {
+                        lyricsFlag = true;
+                        continue;
+                    }
+                    else if (id.toString().indexOf("id_") != 0)
+                        this.Info += resArray[i].replace(/<a href.+?>|<\/a>|<\/a>.*?<\/a>|<span.+?>|<\/span>/g, "") + mio.LineFeedCode;
+                    else if (lyricsFlag)
+                        break;
+                    else if (id == "id_738ae0ba") {
+                        isCD = true;
+                        break;
+                    }
+                }
+                if (lyricsFlag)
+                    this.Lyrics += resArray[i].replace(/<br ?\/>|<\/div>/g, mio.LineFeedCode);
+            }
+
+            if (!lyricsFlag) {
+                this.errorMes = function () {
+                    var intButton = ws.Popup((isCD ? "ページがありません。" : "ページ内に歌詞が記載されていません。") + "\nブラウザで開きますか？", 0, "確認", 36);
+                    if (intButton == 6)
+                        sa.ShellExecute('"' + getFile.PRESENT + '"', "", "", "open", 1);
+                }
+            }
+            else {
+                this.Lyrics = this.Lyrics.replace(/<.+?>|\t/g, "").replace(/&quot;/g, "\"").replace(/&nbsp;/g, " ");
+                this.FoundLyrics = true;
+            }
+        }
+
+    }
+
+    function outputText(lyrics, info) {
+        var text = (mio.addinfo ? info + mio.LineFeedCode : "") + lyrics.replace(/\s{1,}$/, mio.LineFeedCode);
+        var intButton = null, file = null;
+        onLoaded.debug && WScript.Echo("\n" + text + "\n===for debug=============");
+        if (mio.showsave)
+            intButton = ws.Popup(text
+                                    + "\n\n==============================================\n"
+                                    + "                                                                           この歌詞を保存しますか？", 0, "確認", 4);
+        if (!mio.showsave || intButton == 6) {
+            file = new ActiveXObject('ADODB.Stream');
+            file.type = 2;
+            file.charset = mio.CharacterCode;
+            file.open();
+            file.writeText(text);
+            file.saveToFile(mio.savepath, 2);
+            file.close();
+            intButton = mio.showcomp && ws.Popup("保存が完了しました。\n" + mio.savepath + "\nウェブページを開きますか？", 0, "情報", 68);
+            if (intButton == 6)
+                sa.ShellExecute('"' + getFile.PRESENT + '"', "", "", "open", 1);
+        }
+    }
+
+    //==Main==========================
+
+    function main(title, artist, addInfo, overwrite, putLyricsIn, showSaveDialog, showCompleteDialog, CharacterCode, LineFeedCode) {
+
+        if (!codeBoolean(CharacterCode, 1) || !codeBoolean(LineFeedCode, 2)) {
+            ws.Popup("文字コードか改行コードの指定が間違っています。", 0, "処理の中止", 64);
+            return;
+        }
+
+        if (!title) {
+            ws.Popup("曲名が入力されていません", 0, "処理の中止", 64);
+            return;
+        }
+
+        mio = {
+            title: title,
+            artist: artist,
+            addinfo: addInfo,
+            overwrite: overwrite,
+            savepath: putLyricsIn,
+            showsave: showSaveDialog,
+            showcomp: showCompleteDialog,
+            CharacterCode: CharacterCode,
+            LineFeedCode: LineFeedCode.replace(/CR/i, "\r").replace(/LF/i, "\n").replace(/\+/i, "")
+        };
+
+        if (!fs.FileExists(mio.savepath) || mio.overwrite)
+            getFile(null, "GET", createQuery(mio.title), false, 1, -1); // GETなのでnull
+        else
+            ws.Popup("歌詞ファイルが既に存在します。", 0, "処理の中止", 64);
+
+    }
+
+    if (args.length != 9) {
+        //        ws.Popup("引数が正しくありません。", 0, "処理の中止", 64);
+        var miotitle = prompt("Please input Title", "Title", "");
+        var mioartist = prompt("Please input Artist", "Artist", "");
+        var miosavename = mioartist + " - " + miotitle + ".txt";
+        main(
+    miotitle,
+    mioartist,
+    true,
+    false,
+    ws.SpecialFolders.item("Desktop") + "\\" + miosavename.replaceStr("*", "＊", "?", "？", "/", "／", ":", "："),
+    true,
+    true,
+    "Unicode",
+    "CR+LF"
+    );
+    }
+    else
+        main(args.item(0), args.item(1), args.item(2), args.item(3), args.item(4), args.item(5), args.item(6), args.item(7), args.item(8));
+
+</script>
+</job>
+
+//EOF
