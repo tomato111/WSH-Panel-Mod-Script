@@ -1,6 +1,6 @@
 ﻿// ==PREPROCESSOR==
 // @name "Lyrics Downloader (Miku Hatsune wiki)"
-// @version "1.09"
+// @version "1.10"
 // @author "tomato111"
 // ==/PREPROCESSOR==
 
@@ -162,7 +162,7 @@ function onLoaded(request, type, found) {
 }
 
 function AnalyzePage(resArray, found) {
-    var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title.replaceEach("\\*", "\\*", "\\?", "\\?", "g") + '.*?)">' : 'id_[a-z0-9]{8}|^作詞|^作曲|^編曲|^唄');
+    var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title.replaceEach("\\*", "\\*", "\\?", "\\?", "g") + '.*?)"(?: style=".+?")?>' : 'id_[a-z0-9]{8}|^作詞|^作曲|^編曲|^唄');
     var lyricsFlag = false, id = null, intButton = null, foundPage = null;
     var aimai = false, mat = false, isCD = false;
 

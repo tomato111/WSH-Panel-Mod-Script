@@ -1,5 +1,5 @@
 // @name "Lyrics Downloader (Miku Hatsune wiki)"
-// @version "1.08"
+// @version "1.10"
 // @author "Tomato"
 
 <job id="main">
@@ -92,7 +92,7 @@
     }
 
     function AnalyzePage(resArray, found) {
-        var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title + '.*?)">' : 'id_[a-z0-9]{8}|^ìŒ|^ì‹È|^•Ò‹È|^‰S');
+        var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title + '.*?)"(?: style=".+?")?>' : 'id_[a-z0-9]{8}|^ìŒ|^ì‹È|^•Ò‹È|^‰S');
         var lyricsFlag = false, id = null, intButton = null, foundPage = null;
         var aimai = false, mat = false, isCD = false;
 
