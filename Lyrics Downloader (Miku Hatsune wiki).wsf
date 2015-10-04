@@ -1,4 +1,4 @@
-// @name "Lyrics Downloader (Miku Hatsune wiki)"
+ï»¿// @name "Lyrics Downloader (Miku Hatsune wiki)"
 // @version "1.10"
 // @author "Tomato"
 
@@ -26,7 +26,7 @@
     String.prototype.replaceStr = function () {
         var str = this;
         if (arguments.length % 2)
-            ws.Popup("escapeStrƒƒ\ƒbƒh‚Ö‚Ìˆø”‚ª•s³‚Å‚·");
+            ws.Popup("escapeStrãƒ¡ã‚½ãƒƒãƒ‰ã¸ã®å¼•æ•°ãŒä¸æ­£ã§ã™");
         else {
             for (var i = 0; i < arguments.length; i += 2) {
                 var re = new RegExp("\\" + arguments[i], "g");
@@ -92,7 +92,7 @@
     }
 
     function AnalyzePage(resArray, found) {
-        var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title + '.*?)"(?: style=".+?")?>' : 'id_[a-z0-9]{8}|^ìŒ|^ì‹È|^•Ò‹È|^‰S');
+        var re = new RegExp(found !== true ? '<a href="(.*?)" +?title="(' + mio.title + '.*?)"(?: style=".+?")?>' : 'id_[a-z0-9]{8}|^ä½œè©|^ä½œæ›²|^ç·¨æ›²|^å”„');
         var lyricsFlag = false, id = null, intButton = null, foundPage = null;
         var aimai = false, mat = false, isCD = false;
 
@@ -103,7 +103,7 @@
                     onLoaded.debug && WScript.Echo("TITLE: " + RegExp.$2 + " URL: " + RegExp.$1);
                     if (RegExp.$2 == mio.title)
                         foundPage = RegExp.$1.replace(/amp;/g, "");
-                    if (RegExp.$2.indexOf(mio.title + "/") == 0 && RegExp.$2.indexOf(mio.title + "/‰ß‹ƒƒO") != 0 && RegExp.$2.indexOf(mio.title + "/CD") != 0)
+                    if (RegExp.$2.indexOf(mio.title + "/") == 0 && RegExp.$2.indexOf(mio.title + "/éå»ãƒ­ã‚°") != 0 && RegExp.$2.indexOf(mio.title + "/CD") != 0)
                         !aimai && (aimai = true) && onLoaded.debug && WScript.Echo("aimai turn true");
                     if (RegExp.$2 == mio.title + "/" + mio.artist) {
                         foundPage = RegExp.$1.replace(/amp;/g, "");
@@ -118,8 +118,8 @@
             }
             else if (found == -2) {
                 this.errorMes = function () {
-                    var mes = aimai ? "ƒy[ƒW‚ªæ“¾o—ˆ‚Ü‚¹‚ñ‚Å‚µ‚½B\nƒA[ƒeƒBƒXƒg–¼‚ªŠÔˆá‚Á‚Ä‚¢‚È‚¢‚©Šm”F‚µ‚Ä‚­‚¾‚³‚¢B" : "ƒy[ƒW‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B";
-                    var intButton = ws.Popup(mes + "\n\ƒuƒ‰ƒEƒU‚ÅŠJ‚«‚Ü‚·‚©H", 0, "Šm”F", 36);
+                    var mes = aimai ? "ãƒšãƒ¼ã‚¸ãŒå–å¾—å‡ºæ¥ã¾ã›ã‚“ã§ã—ãŸã€‚\nã‚¢ãƒ¼ãƒ†ã‚£ã‚¹ãƒˆåãŒé–“é•ã£ã¦ã„ãªã„ã‹ç¢ºèªã—ã¦ãã ã•ã„ã€‚" : "ãƒšãƒ¼ã‚¸ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚";
+                    var intButton = ws.Popup(mes + "\n\ãƒ–ãƒ©ã‚¦ã‚¶ã§é–‹ãã¾ã™ã‹ï¼Ÿ", 0, "ç¢ºèª", 36);
                     if (intButton == 6)
                         sa.ShellExecute('"' + getFile.PRESENT + '"', "", "", "open", 1);
                 }
@@ -131,7 +131,7 @@
             this.Lyrics = "";
             for (i = 0; i < resArray.length; i++) {
                 id = resArray[i].match(re);
-                onLoaded.debug && id && WScript.Echo(i + 1 + "s–Ú: " + id);
+                onLoaded.debug && id && WScript.Echo(i + 1 + "è¡Œç›®: " + id);
                 if (id) {
                     if (id == "id_0a172479") {
                         lyricsFlag = true;
@@ -152,7 +152,7 @@
 
             if (!lyricsFlag) {
                 this.errorMes = function () {
-                    var intButton = ws.Popup((isCD ? "ƒy[ƒW‚ª‚ ‚è‚Ü‚¹‚ñB" : "ƒy[ƒW“à‚É‰ÌŒ‚ª‹LÚ‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB") + "\nƒuƒ‰ƒEƒU‚ÅŠJ‚«‚Ü‚·‚©H", 0, "Šm”F", 36);
+                    var intButton = ws.Popup((isCD ? "ãƒšãƒ¼ã‚¸ãŒã‚ã‚Šã¾ã›ã‚“ã€‚" : "ãƒšãƒ¼ã‚¸å†…ã«æ­Œè©ãŒè¨˜è¼‰ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚") + "\nãƒ–ãƒ©ã‚¦ã‚¶ã§é–‹ãã¾ã™ã‹ï¼Ÿ", 0, "ç¢ºèª", 36);
                     if (intButton == 6)
                         sa.ShellExecute('"' + getFile.PRESENT + '"', "", "", "open", 1);
                 }
@@ -172,7 +172,7 @@
         if (mio.showsave)
             intButton = ws.Popup(text
                                     + "\n\n==============================================\n"
-                                    + "                                                                           ‚±‚Ì‰ÌŒ‚ğ•Û‘¶‚µ‚Ü‚·‚©H", 0, "Šm”F", 4);
+                                    + "                                                                           ã“ã®æ­Œè©ã‚’ä¿å­˜ã—ã¾ã™ã‹ï¼Ÿ", 0, "ç¢ºèª", 4);
         if (!mio.showsave || intButton == 6) {
             file = new ActiveXObject('ADODB.Stream');
             file.type = 2;
@@ -181,7 +181,7 @@
             file.writeText(text);
             file.saveToFile(mio.savepath, 2);
             file.close();
-            intButton = mio.showcomp && ws.Popup("•Û‘¶‚ªŠ®—¹‚µ‚Ü‚µ‚½B\n" + mio.savepath + "\nƒEƒFƒuƒy[ƒW‚ğŠJ‚«‚Ü‚·‚©H", 0, "î•ñ", 68);
+            intButton = mio.showcomp && ws.Popup("ä¿å­˜ãŒå®Œäº†ã—ã¾ã—ãŸã€‚\n" + mio.savepath + "\nã‚¦ã‚§ãƒ–ãƒšãƒ¼ã‚¸ã‚’é–‹ãã¾ã™ã‹ï¼Ÿ", 0, "æƒ…å ±", 68);
             if (intButton == 6)
                 sa.ShellExecute('"' + getFile.PRESENT + '"', "", "", "open", 1);
         }
@@ -192,12 +192,12 @@
     function main(title, artist, addInfo, overwrite, putLyricsIn, showSaveDialog, showCompleteDialog, CharacterCode, LineFeedCode) {
 
         if (!codeBoolean(CharacterCode, 1) || !codeBoolean(LineFeedCode, 2)) {
-            ws.Popup("•¶šƒR[ƒh‚©‰üsƒR[ƒh‚Ìw’è‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·B", 0, "ˆ—‚Ì’†~", 64);
+            ws.Popup("æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‹æ”¹è¡Œã‚³ãƒ¼ãƒ‰ã®æŒ‡å®šãŒé–“é•ã£ã¦ã„ã¾ã™ã€‚", 0, "å‡¦ç†ã®ä¸­æ­¢", 64);
             return;
         }
 
         if (!title) {
-            ws.Popup("‹È–¼‚ª“ü—Í‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ", 0, "ˆ—‚Ì’†~", 64);
+            ws.Popup("æ›²åãŒå…¥åŠ›ã•ã‚Œã¦ã„ã¾ã›ã‚“", 0, "å‡¦ç†ã®ä¸­æ­¢", 64);
             return;
         }
 
@@ -214,14 +214,14 @@
         };
 
         if (!fs.FileExists(mio.savepath) || mio.overwrite)
-            getFile(null, "GET", createQuery(mio.title), false, 1, -1); // GET‚È‚Ì‚Ånull
+            getFile(null, "GET", createQuery(mio.title), false, 1, -1); // GETãªã®ã§null
         else
-            ws.Popup("‰ÌŒƒtƒ@ƒCƒ‹‚ªŠù‚É‘¶İ‚µ‚Ü‚·B", 0, "ˆ—‚Ì’†~", 64);
+            ws.Popup("æ­Œè©ãƒ•ã‚¡ã‚¤ãƒ«ãŒæ—¢ã«å­˜åœ¨ã—ã¾ã™ã€‚", 0, "å‡¦ç†ã®ä¸­æ­¢", 64);
 
     }
 
     if (args.length != 9) {
-        //        ws.Popup("ˆø”‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñB", 0, "ˆ—‚Ì’†~", 64);
+        //        ws.Popup("å¼•æ•°ãŒæ­£ã—ãã‚ã‚Šã¾ã›ã‚“ã€‚", 0, "å‡¦ç†ã®ä¸­æ­¢", 64);
         var miotitle = prompt("Please input Title", "Title", "");
         var mioartist = prompt("Please input Artist", "Artist", "");
         var miosavename = mioartist + " - " + miotitle + ".txt";
@@ -230,7 +230,7 @@
     mioartist,
     true,
     false,
-    ws.SpecialFolders.item("Desktop") + "\\" + miosavename.replaceStr("*", "–", "?", "H", "/", "^", ":", "F"),
+    ws.SpecialFolders.item("Desktop") + "\\" + miosavename.replaceStr("*", "ï¼Š", "?", "ï¼Ÿ", "/", "ï¼", ":", "ï¼š"),
     true,
     true,
     "Unicode",
