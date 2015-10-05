@@ -4,12 +4,6 @@
 // @author "tomato111"
 // ==/PREPROCESSOR==
 
-// Preferences -> Tools -> WSH Panel Mod の"Safe mode"のチェックを外してください
-// パネル右クリック -> properties の説明
-// Panel.Extension : 記述した拡張子のファイルを外部プレイヤーで開く
-// Player.～ : 拡張子別に外部プレイヤーを指定可能（フルパスを記述）
-//            空欄なら既定のプレイヤーで再生します
-
 
 //========
 // properties
@@ -19,7 +13,7 @@ var prop = new function () {
 
     this.Panel = {
         Enable: window.GetProperty('Panel.Enable', true),
-        Extension: window.GetProperty('Panel.Extension', 'avi,flv,mkv,mpg,mp4,wmv'),
+        Extension: window.GetProperty('Panel.Extension', 'avi,flv,mkv,mpg,mp4,wmv')
     };
 
     if (!this.Panel.Extension)
@@ -67,9 +61,6 @@ function RGB(r, g, b) { return (0xff000000 | (r << 16) | (g << 8) | (b)); }
 //== Callback function =========================
 //========================================
 function on_paint(gr) {
-
-    gr.SetTextRenderingHint(5);
-    gr.SetSmoothingMode(2);
 
     var text = prop.Panel.Enable ? 'Enabled' : 'Disabled';
     var font = gdi.Font('Segoe UI', 13, 0)
