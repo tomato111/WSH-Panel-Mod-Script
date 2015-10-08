@@ -63,7 +63,7 @@ function RGB(r, g, b) { return (0xff000000 | (r << 16) | (g << 8) | (b)); }
 function on_paint(gr) {
 
     var text = prop.Panel.Enable ? 'Enabled' : 'Disabled';
-    var font = gdi.Font('Segoe UI', 13, 0)
+    var font = gdi.Font('Segoe UI', 13, 0);
     var color = prop.Panel.Enable ? RGB(0, 128, 0) : RGB(0, 0, 0);
 
     gr.GdiDrawText(text, font, color, 4, 2, window.Width, window.Height, 0x00000000);
