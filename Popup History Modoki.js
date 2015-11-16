@@ -129,7 +129,6 @@ var PHM = new function () {
 
         var itemIndex = plman.GetPlaylistFocusItemIndex(playlistIndex);
         if (itemIndex !== -1) {
-            PHM.isMenuCommand = true;
             plman.ActivePlaylist = playlistIndex;
             plman.ClearPlaylistSelection(playlistIndex);
             plman.SetPlaylistSelectionSingle(playlistIndex, itemIndex, true);
