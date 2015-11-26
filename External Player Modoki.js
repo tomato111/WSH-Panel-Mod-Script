@@ -1,6 +1,6 @@
 ﻿// ==PREPROCESSOR==
 // @name "External Player Modoki"
-// @version "1.0.0"
+// @version "1.0.1"
 // @author "tomato111"
 // ==/PREPROCESSOR==
 
@@ -27,6 +27,13 @@ var prop = new function () {
     for (var i = 0; i < extArr.length; i++) {
         this.Player[extArr[i].toUpperCase()] = window.GetProperty('Player.' + extArr[i].toUpperCase(), '');
     }
+
+    this.Style = {
+        Color:
+            {
+                Background: eval(window.GetProperty('Style.Color.Background', 'RGBA(255,255,255,50)'))
+            }
+    };
 
 };
 //========
@@ -56,6 +63,11 @@ function LaunchPlayer(ext, arg) {
 }
 
 function RGB(r, g, b) { return (0xff000000 | (r << 16) | (g << 8) | (b)); }
+function RGBA(r, g, b, a) {
+    var res = 0xff000000 | (r << 16) | (g << 8) | (b);
+    if (a != undefined) res = (res & 0x00ffffff) | (a << 24);
+    return res;
+}
 
 //========================================
 //== Callback function =========================
@@ -66,6 +78,7 @@ function on_paint(gr) {
     var font = gdi.Font('Segoe UI', 13, 0);
     var color = prop.Panel.Enable ? RGB(0, 128, 0) : RGB(0, 0, 0);
 
+    gr.FillSolidRect(-1, -1, window.Width + 2, window.Height + 2, prop.Style.Color.Background);
     gr.GdiDrawText(text, font, color, 4, 2, window.Width, window.Height, 0x00000000);
 }
 
@@ -77,7 +90,7 @@ function on_playback_new_track(metadb) {
             LaunchPlayer(current_ext.slice(1), metadb.Path);
         }
         else
-            fb.IsPaused && fb.Pause();
+            fb.IsPaused && window.setTimeout(function () { fb.IsPaused && fb.Pause(); }, 50);
     }
 }
 
