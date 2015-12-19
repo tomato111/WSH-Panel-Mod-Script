@@ -1,6 +1,6 @@
 ﻿// ==PREPROCESSOR==
 // @name "Popup History Modoki"
-// @version "1.0.0"
+// @version "1.0.1"
 // @author "tomato111"
 // ==/PREPROCESSOR==
 
@@ -12,8 +12,7 @@ var prop = new function () {
 
     this.Menu = {
         ItemName: window.GetProperty('Menu.ItemName', '%title%'),
-        MaxSize: window.GetProperty('Menu.MaxSize', 10),
-        PlayingMark: window.GetProperty('Menu.PlayingMark', '<play>')
+        MaxSize: window.GetProperty('Menu.MaxSize', 10)
     };
 
     this.Style = {
@@ -76,9 +75,9 @@ var PHM = new function () {
 
     var history_items, _menu;
 
-    var MF_SEPARATOR = 0x00000800;
-    var MF_GRAYED = 0x00000001;
     var MF_STRING = 0x00000000;
+    var MF_GRAYED = 0x00000001;
+    var MF_CHECKED = 0x00000008;
 
 
     var buildHistoryMenu = function (metadb) {
@@ -88,8 +87,8 @@ var PHM = new function () {
             for (var i = 0; i < history_items.length; i++) {
                 menu_items.push(
                     {
-                        Flag: MF_STRING,
-                        Caption: history_items[i].name + (metadb.Compare(history_items[i].metadb) ? '\t' + prop.Menu.PlayingMark : '')
+                        Flag: metadb.Compare(history_items[i].metadb) ? MF_CHECKED : MF_STRING,
+                        Caption: history_items[i].name
                     }
                 );
             }
