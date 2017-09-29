@@ -2,7 +2,7 @@
     name: 'xplugin_PopupHistory',
     label: 'Popup History Modoki',
     author: 'tomato111',
-    onStartUp: function () { // 最初に一度だけ呼び出される関数
+    onStartUp: function () { // 最初に一度だけ呼び出される
         this.menuitem.Flag = MF_DISABLED;
         var _this = this;
 
@@ -12,8 +12,8 @@
             width: 10,
             height: 10,
             Menu: {
-                ItemName: '%title%',
-                MaxSize: 25
+                ItemName: window.GetProperty('Plugin.PopupHistory.ItemName', '%title%'),
+                MaxSize: window.GetProperty('Plugin.PopupHistory.MaxSize', 25)
             },
             Color: {
                 Ellipse_normal: setAlpha(prop.Style.Color.Text, 32),
@@ -84,13 +84,13 @@
             };
 
             this.popup = function (x, y) {
-                Lock_MiddleButton = true;
+                Menu.isShown = true;
                 var ret = _menu.TrackPopupMenu(x, y);
                 if (ret === history_items.length + 2)
                     this.clear(x, y);
                 else if (ret !== 0)
                     history_items[ret - 1].doCommand();
-                Lock_MiddleButton = false;
+                (function () { Menu.isShown = false; }).timeout(10);
             };
 
 
@@ -100,7 +100,7 @@
                     return;
                 }
 
-                var playlistIndex, playbackLength, HandleList, metadb;
+                var playlistIndex, playbackLength, HandleList;
 
                 history_index_data = str.split('^');
                 for (var i = 0; i < history_index_data.length;) {
@@ -200,10 +200,10 @@
         };
 
     },
-    onPlay: function (metadb) { // 新たに曲が再生される度に呼び出される関数
+    onPlay: function (metadb) { // 新たに曲が再生される度に呼び出される
         this.PHM.add(metadb);
     },
-    onClick: function (x, y, mask) { // パネルクリック時に呼び出される関数 // trueを返すと本体のクリックイベントをキャンセル
+    onClick: function (x, y, mask) { // パネルクリック時に呼び出される // trueを返すと本体のクリックイベントをキャンセル
         if (this.PHM.hover) {
             this.PHM.popup(x + 1, y);
             this.PHM.hover = false;
@@ -211,8 +211,8 @@
             return true;
         }
     },
-    onMove: function (x, y) { // パネルにマウスポインタを置くと呼び出され続ける関数
-        if (!prop.Edit.Start) {
+    onMove: function (x, y) { // パネルにマウスポインタを置くと呼び出され続ける
+        if (!Edit.isStarted) {
             var p = this.prop;
             if (!this.PHM.hover && x >= p.x && y >= p.y && x <= p.x + p.width && y <= p.y + p.height) {
                 this.PHM.hover = true;
@@ -224,14 +224,14 @@
             }
         }
     },
-    onLeave: function () { // パネルからマウスポインタが離れた時に呼び出される関数
-        if (!Lock_MiddleButton) {
+    onLeave: function () { // パネルからマウスポインタが離れた時に呼び出される
+        if (!Menu.isShown) {
             this.PHM.hover = false;
             this.PHM.repaint();
         }
     },
-    onPaint: function (gr) { // 描画イベントが発生した時に呼び出される関数
-        if (!prop.Edit.Start)
+    onPaint: function (gr) { // 描画イベントが発生した時に呼び出される
+        if (!Edit.isStarted)
             this.PHM.onPaint(gr);
     }
 };
