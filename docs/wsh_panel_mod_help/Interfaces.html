@@ -1,30 +1,14 @@
-﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+﻿<!DOCTYPE html>
 <html>
+
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>F:\Develop\foobar2000-Dev.2011-03-11\foobar2000\foo_uie_wsh_panel_mod\docs\Interfaces.txt.html</title>
-<meta name="Generator" content="Vim/7.3">
-<meta name="plugin-version" content="vim7.3_v6">
-<meta name="syntax" content="java">
-<meta name="settings" content="use_css">
-<style type="text/css">
-<!--
-pre { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
-body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
-.Underlined { color: #80a0ff; text-decoration: underline; }
-.String { color: #7fffd4; }
-.Function { color: #87cefa; }
-.Boolean { color: #ffec8b; font-weight: bold; }
-.Number { color: #ffec8b; font-weight: bold; }
-.Type { color: #98fb98; font-weight: bold; }
-.Label { color: #00ffff; }
-.StorageClass { color: #ffec8b; font-weight: bold; }
-.Comment { color: #66cdaa; font-style: italic; }
--->
-</style>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>WSH Panel Mod - Interfaces.html</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
-<pre>
+    <pre>
 
 <span class="Comment">// Global objects:</span>
 <span class="Comment">//   window - IFbWindow</span>
@@ -471,9 +455,9 @@ body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
 
 <span class="StorageClass">interface</span> IThemeManager {
 <span class="Label">Methods</span>:
-    <span class="Comment">// For parts and stats: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx">http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx</a></span>
+    <span class="Comment">// For parts and stats: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx</a></span>
     <span class="Comment">// You get vsstyle.h and vssym32.h (won't included in Flags because they are too large) here:</span>
-    <span class="Comment">//    </span><span class="Underlined"><a href="http://dl.dropbox.com/u/2451120/vsstyles_h.7z">http://dl.dropbox.com/u/2451120/vsstyles_h.7z</a></span>
+    <span class="Comment">//    </span><span class="Underlined"><a href="http://dl.dropbox.com/u/2451120/vsstyles_h.7z" target="_blank">http://dl.dropbox.com/u/2451120/vsstyles_h.7z</a></span>
     <span class="Type">void</span> SetPartAndStateID(partid, stateid);
     <span class="Comment">// NOTE: stateid should be 0, it's unused now.</span>
     <span class="Type">boolean</span> IsThemePartDefined(partid, stateid = <span class="Number">0</span>);
@@ -557,7 +541,7 @@ body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
     <span class="Comment">// Only valid in DUI</span>
     <span class="Comment">// for type, see Flags.txt</span>
     IGdiFont GetFontDUI(type);
-    <span class="Comment">// class list: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx">http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx</a></span>
+    <span class="Comment">// class list: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx</a></span>
     <span class="Comment">// e.g: var theme = window.CreateThemeManager(&quot;Button&quot;);</span>
     IThemeManager CreateThemeManager(classlist);
 }
@@ -589,7 +573,7 @@ body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
     <span class="Comment">// NOTE: ReadINI() return up to 255 characters, more characters will be truncated, so use INI files to read/write simple values</span>
     String ReadINI(filename, section, key[, defaultval]);
     <span class="Type">boolean</span> WriteINI(filename, section, key, val);
-    <span class="Comment">// For virtual key codes: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/ms927178.aspx">http://msdn.microsoft.com/en-us/library/ms927178.aspx</a></span>
+    <span class="Comment">// For virtual key codes: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/ms927178.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/ms927178.aspx</a></span>
     <span class="Type">boolean</span> IsKeyPressed(vkey);
     <span class="Comment">// Using Microsoft MS-DOS wildcards match type. ex (&quot;*.txt&quot;, &quot;abc?.tx?&quot;)</span>
     <span class="Type">boolean</span> PathWildcardMatch(pattern, str);
@@ -597,14 +581,14 @@ body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
     <span class="Comment">// If codepabe == 0, text file can be either: UTF-16 with BOM, UTF-8 with BOM and ANSI.</span>
     <span class="Comment">// You can consider using helper routines for codepage in Codepages.txt.</span>
     String ReadTextFile(filename, codepage = <span class="Number">0</span>);
-    <span class="Comment">// index: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx">http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx</a></span>
+    <span class="Comment">// index: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx</a></span>
     <span class="Comment">// Returns 0 if failed.</span>
     uint GetSysColor(index);
-    <span class="Comment">// index: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx">http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx</a></span>
+    <span class="Comment">// index: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx</a></span>
     <span class="Comment">// Returns 0 if failed.</span>
     <span class="Type">int</span> GetSystemMetrics(index);
     <span class="Comment">// for masks, see Flags.txt, you can ignore these two parameters in almost all circumstances.</span>
-    <span class="Comment">// VBArray is supported natived in VBScript and JScript: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/3s0fw3t2%28VS.80%29.aspx">http://msdn.microsoft.com/en-us/library/3s0fw3t2%28VS.80%29.aspx</a></span>
+    <span class="Comment">// VBArray is supported natived in VBScript and JScript: </span><span class="Underlined"><a href="http://msdn.microsoft.com/en-us/library/3s0fw3t2%28VS.80%29.aspx" target="_blank">http://msdn.microsoft.com/en-us/library/3s0fw3t2%28VS.80%29.aspx</a></span>
     <span class="Comment">// If you want to convert it to a JScript array, use .toArray() method.</span>
     <span class="Comment">// Sample usage: var arr = utils.Glob(&quot;C:\\*.*&quot;).toArray();</span>
     VBArray Glob(pattern, exc_mask = FILE_ATTRIBUTE_DIRECTORY, inc_mask = <span class="Number">0xffffffff</span>);
@@ -755,4 +739,5 @@ body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
 }
 </pre>
 </body>
+
 </html>

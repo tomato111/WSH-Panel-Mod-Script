@@ -1,24 +1,48 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN">
+<!DOCTYPE html>
 <html>
+
 <head>
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<title>WSH Panel Mod - docs</title>
-<meta name="Generator" content="Vim/7.3">
-<meta name="plugin-version" content="vim7.3_v6">
-<meta name="syntax" content="javascript">
-<meta name="settings" content="use_css">
-<style type="text/css">
-<!--
-pre { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
-body { font-family: monospace; color: #fff8dc; background-color: #233b5a; }
-a { font-family: monospace; color: #cccccc; background-color: #233b5a; margin:10px; line-height:1.4; font-style: normal;}
-.Function { color: #87cefa; }
-.Comment { color: #66cdaa; font-style: italic; }
--->
-</style>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>WSH Panel Mod - docs</title>
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        iframe {
+            border: none;
+            background-color:#D1D5DB;
+        }
+
+        iframe[name="frame1"] {
+            border-right: 1px solid #fff8dc;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 255px;
+            height: 100%;
+        }
+
+        #container_frame2 {
+            position: absolute;
+            top: 0px;
+            left: 256px;
+            right: 0px;
+            height: 100%;
+        }
+
+        iframe[name="frame2"] {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
-<frameset cols="255,*" framespacing="0">
-<frame src="./flame.html" name="frame1">
-<frame src="./Callbacks.html" name="frame2">
-</framset>
+
+<body>
+    <iframe src="./flame.html" name="frame1"></iframe>
+    <div id="container_frame2">
+        <iframe src="./Callbacks.html" name="frame2"></iframe>
+    </div>
+</body>
+
 </html>

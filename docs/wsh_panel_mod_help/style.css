@@ -1,0 +1,58 @@
+body {
+    font-family: 'Consolas', 'Courier New', 'monospace';
+    font-size: 16px;
+    color: #fff8dc;
+    background-color: #233b5a;
+}
+
+a {
+    color: #cccccc;
+    margin: 10px;
+    line-height: 1.4;
+}
+
+a:visited {
+    color: #cccccc;
+}
+
+.Underlined {
+    color: #80a0ff;
+    text-decoration: underline;
+}
+
+.String {
+    color: #7fffd4;
+}
+
+.Function {
+    color: #87cefa;
+}
+
+.Boolean {
+    color: #ffec8b;
+    font-weight: bold;
+}
+
+.Number {
+    color: #ffec8b;
+    font-weight: bold;
+}
+
+.Type {
+    color: #98fb98;
+    font-weight: bold;
+}
+
+.Label {
+    color: #00ffff;
+}
+
+.StorageClass {
+    color: #ffec8b;
+    font-weight: bold;
+}
+
+.Comment {
+    color: #66cdaa;
+    font-style: italic;
+}
