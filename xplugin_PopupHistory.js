@@ -16,8 +16,8 @@
                 MaxSize: window.GetProperty('Plugin.PopupHistory.MaxSize', 25)
             },
             Color: {
-                Ellipse_normal: setAlpha(prop.Style.Color.Text, 32),
-                Ellipse_hover: setAlpha(prop.Style.Color.Text, 96)
+                Ellipse_normal: setAlpha(prop.Style.Color.Text, 40),
+                Ellipse_hover: setAlpha(prop.Style.Color.PlayingText, 96)
             }
         };
 
