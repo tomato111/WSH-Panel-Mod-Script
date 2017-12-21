@@ -50,23 +50,19 @@
                         }
                     ];
 
+                    res = res.replace(/[\t ]*(?:\r\n|\r|\n)[\t ]*/g, '');
+                    var CutoutRE = new RegExp('(?:<span class="badge br|<p class="g-live-airtime).+?</form>', 'ig');
                     var SearchRE = new RegExp(
-                        '(?:<span class="badge br" title="">(.+?)</span>' // $1:放送開始までの時間(1ヶ月以上先や放送中はバッジが付かない)
-                        + '[\\s\\S]+?)?'
-                        + '<p class="g-live-airtime (\\w+)" title' // $2:状態(reserved, open, onair, aired)
-                        + '[\\s\\S]+?'
-                        + '<span class="count">([\\d,]+)</span>' // $3:タイムシフト予約数
-                        + '[\\s\\S]+?'
+                        '(?:<span class="badge br" title="">(.+?)</span>.+?)?' // $1:放送開始までの時間(1ヶ月以上先や放送中はバッジが付かない)
+                        + '<p class="g-live-airtime (\\w+)".+?' // $2:状態(reserved, open, onair, aired)
+                        + '<span class="count">([\\d,]+)</span>.+?' // $3:タイムシフト予約数
                         + '<input type="hidden" name="vid" value="(\\d+)">' // $4:放送番号
-                        + '[\\s]+'
                         + '<input type="hidden" name="title" value="(.+?)">' // $5:放送タイトル
-                        + '[\\s]+'
                         + '<input type="hidden" name="open_time" value="(\\d+)">' // $6:開場時刻(Unixtime)
-                        + '[\\s]+'
                         + '<input type="hidden" name="start_time" value="(\\d+)">' // $7:放送時刻(Unixtime)
-                        , 'ig'
+                        , 'i'
                     );
-                    while (SearchRE.exec(res) !== null) {
+                    while (CutoutRE.test(res) && SearchRE.test(RegExp.lastMatch)) {
                         var item = {
                             time_to_start: RegExp.$1,
                             status: RegExp.$2,
@@ -87,7 +83,7 @@
                         },
                         {
                             Flag: MF_STRING,
-                            Caption: 'ニコニコアニメスペシャル',
+                            Caption: 'ニコニコアニメスペシャル\t' + (menu_items.slice(2).length - (res.match(CutoutRE) || []).length).toString().replace(/^0$/, ''),
                             Func: function () { FuncCommand('http://ch.nicovideo.jp/anime-sp'); }
                         }
                     );
@@ -118,8 +114,8 @@
                     else if (item.status === 'open')
                         item.time_to_start = '-' + item.time_to_start;
 
-                    var caption = item.time_to_start.replaceEach('分後|分以内', 'm', '時間後', 'h', '日後', 'd', '週間後', 'w', '')
-                        + ': ' + item.air_title
+                    var caption = item.time_to_start.replaceEach('分後|分以内', 'm', '時間後', 'h', '日後', 'd', '週間後', 'w', 'i')
+                        + ': ' + item.air_title.decodeHTMLEntities().replace(/&/g, '&&')
                         + ' (' + item.timeshift_count + ')'
                         + '\t' + ('0' + (start_date.getMonth() + 1)).slice(-2)
                         + '/' + ('0' + start_date.getDate()).slice(-2)

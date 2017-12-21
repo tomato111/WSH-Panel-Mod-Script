@@ -1,6 +1,6 @@
 ﻿// ==PREPROCESSOR==
 // @name "Date Modoki"
-// @version "1.0.0"
+// @version "1.0.1"
 // @author "tomato111"
 // ==/PREPROCESSOR==
 
@@ -79,7 +79,7 @@ Function.prototype.clearInterval = function () {
 
 function RGBA(r, g, b, a) {
     var res = 0xff000000 | (r << 16) | (g << 8) | (b);
-    if (a != undefined) res = (res & 0x00ffffff) | (a << 24);
+    if (a !== undefined) res = (res & 0x00ffffff) | (a << 24);
     return res;
 }
 
@@ -102,9 +102,8 @@ var DateModoki = new function () {
                 }
             }
 
-            gr.DrawString(text, font, color[format.type_arr[i]], x, y, window.Width, window.Height, 0x00000000);
-            x += gr.MeasureString(text.replace(/ /g, ''), font, 0, 0, window.Width, window.Height, 0).Width
-                + (text.split(' ').length - 1) * spaceWidth; // MeasureStringメソッドは空白の幅を0と返すので、あらかじめ求めておいたspaceWidthを使って補完する
+            gr.DrawString(text, font, color[format.type_arr[i]], x, y, window.Width, window.Height, 0);
+            x += gr.MeasureString(text, font, 0, 0, window.Width, window.Height, 0x00000800).Width; // 0x00000800 means MeasureTrailingSpaces
         }
     };
 
@@ -120,7 +119,7 @@ var DateModoki = new function () {
         timer_count++;
         if (date_now.getSeconds() + timer_count === 60) {
             setDate();
-            window.Repaint()
+            window.Repaint();
         }
         else
             format.isContain_Second && window.Repaint();
@@ -148,23 +147,11 @@ var DateModoki = new function () {
         for (var name in prop.Style.Color) {
             color[name] = eval(prop.Style.Color[name]);
         }
-
-
-        var temp_bmp = gdi.CreateImage(1, 1);
-        var temp_gr = temp_bmp.GetGraphics();
-
-        spaceWidth = temp_gr.MeasureString(' ,', font, 0, 0, window.Width, window.Height, 0).Width
-                   - temp_gr.MeasureString(',', font, 0, 0, window.Width, window.Height, 0).Width;
-
-        temp_bmp.ReleaseGraphics(temp_gr);
-        temp_bmp.Dispose();
-        temp_gr = null;
-        temp_bmp = null;
     };
 
 
     var timer_count, date_now, applied_text_arr = [],
-        spaceWidth, font, color;
+        font, color;
 
 
     var format = new ParseFormat(prop.Style._format);
@@ -260,6 +247,7 @@ DateModoki.start();
 //== Callback function =========================
 //========================================
 function on_paint(gr) {
+    gr.SetTextRenderingHint(5);
     DateModoki.on_paint(gr, 4, 4);
 }
 
