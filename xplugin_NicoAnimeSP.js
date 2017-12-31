@@ -53,24 +53,22 @@
                     res = res.replace(/[\t ]*(?:\r\n|\r|\n)[\t ]*/g, '');
                     var CutoutRE = new RegExp('(?:<span class="badge br|<p class="g-live-airtime).+?</form>', 'ig');
                     var SearchRE = new RegExp(
-                        '(?:<span class="badge br" title="">(.+?)</span>.+?)?' // $1:放送開始までの時間(1ヶ月以上先や放送中はバッジが付かない)
-                        + '<p class="g-live-airtime (\\w+)".+?' // $2:状態(reserved, open, onair, aired)
-                        + '<span class="count">([\\d,]+)</span>.+?' // $3:タイムシフト予約数
-                        + '<input type="hidden" name="vid" value="(\\d+)">' // $4:放送番号
-                        + '<input type="hidden" name="title" value="(.+?)">' // $5:放送タイトル
-                        + '<input type="hidden" name="open_time" value="(\\d+)">' // $6:開場時刻(Unixtime)
+                        '<p class="g-live-airtime (\\w+)".+?' // $1:状態(reserved, open, onair, aired)
+                        + '<span class="count">([\\d,]+)</span>.+?' // $2:タイムシフト予約数
+                        + '<input type="hidden" name="vid" value="(\\d+)">' // $3:放送番号
+                        + '<input type="hidden" name="title" value="(.+?)">' // $4:放送タイトル
+                        + '<input type="hidden" name="open_time" value="(\\d+)">' // $5:開場時刻(Unixtime)
                         + '<input type="hidden" name="start_time" value="(\\d+)">' // $7:放送時刻(Unixtime)
                         , 'i'
                     );
                     while (CutoutRE.test(res) && SearchRE.test(RegExp.lastMatch)) {
                         var item = {
-                            time_to_start: RegExp.$1,
-                            status: RegExp.$2,
-                            timeshift_count: RegExp.$3,
-                            air_id: RegExp.$4,
-                            air_title: RegExp.$5,
-                            open_time: RegExp.$6,
-                            start_time: RegExp.$7
+                            status: RegExp.$1,
+                            timeshift_count: RegExp.$2,
+                            air_id: RegExp.$3,
+                            air_title: RegExp.$4,
+                            open_time: RegExp.$5,
+                            start_time: RegExp.$6
                         };
                         item = createLiveMenuItem(item);
                         if (item.Caption !== menu_items[menu_items.length - 1].Caption) // onair時に発生する重複を除く
@@ -105,16 +103,26 @@
                     var start_date = new Date(item.start_time * 1000);
                     var now_date = new Date();
 
-                    if (item.time_to_start === '') {
-                        if (item.status === 'reserved')
-                            item.time_to_start = '4w+';
-                        if (item.status === 'onair')
-                            item.time_to_start = '+' + Math.floor((now_date - start_date) / 1000 / 60) + 'm';
+                    var time_to_start = (start_date - now_date) / 1000 / 60;
+                    switch (item.status) {
+                        case 'reserved':
+                            if (time_to_start < 60)
+                                time_to_start = Math.floor(time_to_start) + 'm';
+                            else if (time_to_start < 60 * 24)
+                                time_to_start = Math.floor(time_to_start / 60) + 'h';
+                            else if (time_to_start < 60 * 24 * 7)
+                                time_to_start = Math.floor(time_to_start / 60 / 24) + 'd';
+                            else
+                                time_to_start = Math.round(time_to_start / 60 / 24 / 7) + 'w'; break;
+                        case 'open':
+                            time_to_start = '-' + Math.floor(time_to_start) + 'm'; break;
+                        case 'onair':
+                            time_to_start = '+' + Math.floor(-time_to_start) + 'm'; break;
+                        case 'aired':
+                            time_to_start = ''; break;
                     }
-                    else if (item.status === 'open')
-                        item.time_to_start = '-' + item.time_to_start;
 
-                    var caption = item.time_to_start.replaceEach('分後|分以内', 'm', '時間後', 'h', '日後', 'd', '週間後', 'w', 'i')
+                    var caption = time_to_start
                         + ': ' + item.air_title.decodeHTMLEntities().replace(/&/g, '&&')
                         + ' (' + item.timeshift_count + ')'
                         + '\t' + ('0' + (start_date.getMonth() + 1)).slice(-2)
