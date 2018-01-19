@@ -51,7 +51,7 @@
                     ];
 
                     res = res.replace(/[\t ]*(?:\r\n|\r|\n)[\t ]*/g, '');
-                    var CutoutRE = new RegExp('(?:<span class="badge br|<p class="g-live-airtime).+?</form>', 'ig');
+                    var CutoutRE = new RegExp('<p class="g-live-airtime.+?</form>', 'ig');
                     var SearchRE = new RegExp(
                         '<p class="g-live-airtime (\\w+)".+?' // $1:状態(reserved, open, onair, aired)
                         + '<span class="count">([\\d,]+)</span>.+?' // $2:タイムシフト予約数
@@ -85,6 +85,18 @@
                             Func: function () { FuncCommand('http://ch.nicovideo.jp/anime-sp'); }
                         }
                     );
+
+                    menu_items.sort(function (a, b) {
+                        a = a.Caption;
+                        b = b.Caption;
+                        if (!/^[-+]?\d+/.test(a) || !/^[-+]?\d+/.test(b))
+                            return 0;
+                        else {
+                            a = a.match(/\t.+?\(-/)[0].replace(/\D/g, '');
+                            b = b.match(/\t.+?\(-/)[0].replace(/\D/g, '');
+                            return a - b;
+                        }
+                    });
 
                     _menu = buildMenu(menu_items);
                     _item_list = buildMenu.item_list;
