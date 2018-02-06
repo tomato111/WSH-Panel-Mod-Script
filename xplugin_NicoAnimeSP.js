@@ -51,25 +51,47 @@
                     ];
 
                     res = res.replace(/[\t ]*(?:\r\n|\r|\n)[\t ]*/g, '');
-                    var CutoutRE = new RegExp('<p class="g-live-airtime.+?</form>', 'ig');
+                    var CutoutRE = new RegExp('<div class="g-live-title.+?(?:</form>|この放送はタイムシフトに対応しておりません)', 'ig');
                     var SearchRE = new RegExp(
                         '<p class="g-live-airtime (\\w+)".+?' // $1:状態(reserved, open, onair, aired)
                         + '<span class="count">([\\d,]+)</span>.+?' // $2:タイムシフト予約数
                         + '<input type="hidden" name="vid" value="(\\d+)">' // $3:放送番号
                         + '<input type="hidden" name="title" value="(.+?)">' // $4:放送タイトル
                         + '<input type="hidden" name="open_time" value="(\\d+)">' // $5:開場時刻(Unixtime)
-                        + '<input type="hidden" name="start_time" value="(\\d+)">' // $7:放送時刻(Unixtime)
+                        + '<input type="hidden" name="start_time" value="(\\d+)">' // $6:放送時刻(Unixtime)
                         , 'i'
                     );
-                    while (CutoutRE.test(res) && SearchRE.test(RegExp.lastMatch)) {
-                        var item = {
-                            status: RegExp.$1,
-                            timeshift_count: RegExp.$2,
-                            air_id: RegExp.$3,
-                            air_title: RegExp.$4,
-                            open_time: RegExp.$5,
-                            start_time: RegExp.$6
-                        };
+                    var Search2RE = new RegExp( // タイムシフトがない場合
+                        '<div class="g-live-title.+?<a href="http://live.nicovideo.jp/watch/lv(\\d+)">' // $1:放送番号
+                        + '(.+?)</a>.+?' // $2:放送タイトル
+                        + '<p class="g-live-airtime (\\w+)".+?' // $3:状態(reserved, open, onair, aired)
+                        + '<strong>(\\d{2})/(\\d{2})</strong>(\\d{2}):(\\d{2})' // $4,5,6,7:放送時刻
+                        , 'i'
+                    );
+                    while (CutoutRE.test(res) && (SearchRE.test(RegExp.lastMatch) || Search2RE.test(RegExp.lastMatch))) {
+                        if (!RegExp.$7)
+                            var item = {
+                                status: RegExp.$1,
+                                timeshift_count: RegExp.$2,
+                                air_id: RegExp.$3,
+                                air_title: RegExp.$4,
+                                open_time: RegExp.$5,
+                                start_time: RegExp.$6
+                            };
+                        else {
+                            var d = new Date().getMonth() - RegExp.$4 - 1; // 年の情報がないので月の情報から推測する
+                            if (Math.abs(d) >= 9)
+                                d = new Date().getFullYear() + (d < 0 ? -1 : 1);
+                            else
+                                d = new Date().getFullYear();
+                            item = {
+                                status: RegExp.$3,
+                                timeshift_count: '※タイムシフトなし',
+                                air_id: RegExp.$1,
+                                air_title: RegExp.$2,
+                                start_time: new Date(d, RegExp.$4 - 1, RegExp.$5, RegExp.$6, RegExp.$7) / 1000
+                            };
+                        }
                         item = createLiveMenuItem(item);
                         if (item.Caption !== menu_items[menu_items.length - 1].Caption) // onair時に発生する重複を除く
                             menu_items.push(item);
@@ -92,8 +114,8 @@
                         if (!/^[-+]?\d+/.test(a) || !/^[-+]?\d+/.test(b))
                             return 0;
                         else {
-                            a = a.match(/\t.+?\(-/)[0].replace(/\D/g, '');
-                            b = b.match(/\t.+?\(-/)[0].replace(/\D/g, '');
+                            a = a.match(/\t.+\(/)[0].replace(/\D/g, '');
+                            b = b.match(/\t.+\(/)[0].replace(/\D/g, '');
                             return a - b;
                         }
                     });
