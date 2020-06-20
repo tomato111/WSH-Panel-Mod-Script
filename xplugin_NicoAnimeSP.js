@@ -34,142 +34,123 @@
 
             this.refresh = function (x, y) {
 
-                getHTML(null, 'GET', 'http://ch.nicovideo.jp/anime-sp', ASYNC, 0, function (request, depth, file) {
-
-                    var res = request.responseText;
-                    //console(res);
-
-                    var menu_items = [ // header
-                        {
-                            Flag: MF_STRING,
-                            Caption: '(Refresh)',
-                            Func: function () { _this.NAS.refresh(x, y); }
-                        },
-                        {
-                            Flag: MF_SEPARATOR
-                        }
-                    ];
-
-                    res = res.replace(/[\t ]*(?:\r\n|\r|\n)[\t ]*/g, '');
-                    var CutoutRE = new RegExp('<div class="g-live-title.+?(?:</form>|この放送はタイムシフトに対応しておりません)', 'ig');
-                    var SearchRE = new RegExp(
-                        '<p class="g-live-airtime (\\w+)".+?' // $1:状態(reserved, open, onair, aired)
-                        + '<span class="count">([\\d,]+)</span>.+?' // $2:タイムシフト予約数
-                        + '<input type="hidden" name="vid" value="(\\d+)">' // $3:放送番号
-                        + '<input type="hidden" name="title" value="(.+?)">' // $4:放送タイトル
-                        + '<input type="hidden" name="open_time" value="(\\d+)">' // $5:開場時刻(Unixtime)
-                        + '<input type="hidden" name="start_time" value="(\\d+)">' // $6:放送時刻(Unixtime)
-                        , 'i'
-                    );
-                    var Search2RE = new RegExp( // タイムシフトがない場合
-                        '<div class="g-live-title.+?<a href="http://live.nicovideo.jp/watch/lv(\\d+)">' // $1:放送番号
-                        + '(.+?)</a>.+?' // $2:放送タイトル
-                        + '<p class="g-live-airtime (\\w+)".+?' // $3:状態(reserved, open, onair, aired)
-                        + '<strong>(\\d{2})/(\\d{2})</strong>(\\d{2}):(\\d{2})' // $4,5,6,7:放送時刻
-                        , 'i'
-                    );
-                    while (CutoutRE.test(res) && (SearchRE.test(RegExp.lastMatch) || Search2RE.test(RegExp.lastMatch))) {
-                        if (!RegExp.$7)
-                            var item = {
-                                status: RegExp.$1,
-                                timeshift_count: RegExp.$2,
-                                air_id: RegExp.$3,
-                                air_title: RegExp.$4,
-                                open_time: RegExp.$5,
-                                start_time: RegExp.$6
-                            };
-                        else {
-                            var d = new Date().getMonth() - RegExp.$4 - 1; // 年の情報がないので月の情報から推測する
-                            if (Math.abs(d) >= 9)
-                                d = new Date().getFullYear() + (d < 0 ? -1 : 1);
-                            else
-                                d = new Date().getFullYear();
-                            item = {
-                                status: RegExp.$3,
-                                timeshift_count: '※タイムシフトなし',
-                                air_id: RegExp.$1,
-                                air_title: RegExp.$2,
-                                start_time: new Date(d, RegExp.$4 - 1, RegExp.$5, RegExp.$6, RegExp.$7) / 1000
-                            };
-                        }
-                        item = createLiveMenuItem(item);
-                        if (item.Caption !== menu_items[menu_items.length - 1].Caption) // onair時に発生する重複を除く
-                            menu_items.push(item);
+                var menu_items = [ // header
+                    {
+                        Flag: MF_STRING,
+                        Caption: '(Refresh)',
+                        Func: function () { _this.NAS.refresh(x, y); }
+                    },
+                    {
+                        Flag: MF_SEPARATOR
                     }
+                ];
 
-                    menu_items.push( // footer
-                        {
-                            Flag: MF_SEPARATOR
-                        },
-                        {
-                            Flag: MF_STRING,
-                            Caption: 'ニコニコアニメスペシャル\t' + (menu_items.slice(2).length - (res.match(CutoutRE) || []).length).toString().replace(/^0$/, ''),
-                            Func: function () { FuncCommand('http://ch.nicovideo.jp/anime-sp'); }
-                        }
-                    );
+                // 放送中
+                getHTML(null, 'GET', 'https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=onair&sortOrder=recentDesc&providerTypes=official&providerTypes=channel',
+                    !ASYNC, 0, extractLiveInfo, { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' }); // キャッシュが邪魔をするので、強制的に最新データを取りに行く
+                // 放送予定
+                getHTML(null, 'GET', 'https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=reserved&sortOrder=recentDesc&providerTypes=official&providerTypes=channel',
+                    !ASYNC, 0, extractLiveInfo, { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' });
+                // タイムシフト
+                getHTML(null, 'GET', 'https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=past&sortOrder=recentDesc&providerTypes=official&providerTypes=channel',
+                    !ASYNC, 0, extractLiveInfo, { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' });
 
-                    menu_items.sort(function (a, b) {
-                        a = a.Caption;
-                        b = b.Caption;
-                        if (!/^[-+]?\d+/.test(a) || !/^[-+]?\d+/.test(b))
-                            return 0;
-                        else {
-                            a = a.match(/\t.+\(/)[0].replace(/\D/g, '');
-                            b = b.match(/\t.+\(/)[0].replace(/\D/g, '');
-                            return a - b;
-                        }
-                    });
 
-                    _menu = buildMenu(menu_items);
-                    _item_list = buildMenu.item_list;
 
-                    _this.NAS.popup(x, y);
-
-                },
-                    { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' } // キャッシュがどうしても邪魔をするので、強制的に最新データを取りに行く
+                menu_items.push( // footer
+                    {
+                        Flag: MF_SEPARATOR
+                    },
+                    {
+                        Flag: MF_STRING,
+                        Caption: 'ニコニコアニメスペシャル',
+                        Func: function () { FuncCommand('https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=onair&sortOrder=recentDesc&providerTypes=official&providerTypes=channel'); }
+                    }
                 );
 
-                function createLiveMenuItem(item) {
-                    //console("//--Item--"); for (var key in item) { console(key + ": " + item[key]); }
-                    var url = 'http://live.nicovideo.jp/watch/lv' + item.air_id;
-                    var gate_url = url.replace('watch', 'gate');
-                    var open_date = new Date(item.open_time * 1000);
-                    var start_date = new Date(item.start_time * 1000);
-                    var now_date = new Date();
+                _menu = buildMenu(menu_items);
+                _item_list = buildMenu.item_list;
 
-                    var time_to_start = (start_date - now_date) / 1000 / 60;
+                _this.NAS.popup(x, y);
+
+
+                function extractLiveInfo(request, depth, file) {
+
+                    var mode = file.match(/status=(\w+)/)[1].replace('onair', 'live').replace('reserved', 'future').replace('past', 'timeshift');
+                    var res = request.responseText;
+                    //console2(res);
+
+                    res = res.replace(/[\t ]*(?:\r\n|\r|\n)[\t ]*/g, '');
+                    var CutoutRE = new RegExp('<li class="searchPage-ProgramList_Item">.+?<div class="searchPage-ProgramList_User">', 'ig');
+                    var SearchRE = new RegExp(
+                        '<div class="searchPage-ProgramList_StatusLabel-(\\w+)".+?' // $1:状態(live, future, timeshift)
+                        + '<a class="searchPage-ProgramList_TitleLink" href="watch/(.+?)".+?>(.+?)</a>.+?' // $2:放送ID, $3:放送タイトル
+                        + '<span class="searchPage-ProgramList_DataText">([\\d/ :時間]+).+?(?:（(.+?)）)?</span>.+?' // $4:放送時刻(not unixtime), $5:放送時間の長さ（for timeshift)
+                        + '<span class="searchPage-ProgramList_DataIcon-timeshift"></span><span class="searchPage-ProgramList_DataText">(\\d+)</span>' // $6:タイムシフト予約数
+                        , 'i'
+                    );
+                    while (CutoutRE.test(res) && SearchRE.test(RegExp.lastMatch)) {
+                        //console2(RegExp.lastMatch);
+                        var item = {
+                            status: RegExp.$1,
+                            air_id: RegExp.$2,
+                            air_title: RegExp.$3,
+                            start_date: RegExp.$1 === 'live' ? RegExp.$4 : new Date(RegExp.$4),
+                            air_length: RegExp.$5,
+                            timeshift_count: RegExp.$6.replace(/^0$/, '※タイムシフトなし')
+                        };
+                        if (item.status === mode) {
+                            item = createLiveMenuItem(item);
+                            menu_items.push(item);
+                        }
+                    }
+                }
+
+                function createLiveMenuItem(item) {
+                    //console2("//--Item--"); for (var key in item) { console2(key + ": " + item[key]); }
+                    var url = 'https://live2.nicovideo.jp/watch/' + item.air_id;
+                    var time_to_start;
+
                     switch (item.status) {
-                        case 'reserved':
+                        case 'live':
+                            var m;
+                            var temp = item.start_date.split('時間'); // status=liveだと経過時間しか取得できないので逆算して開始時刻を求める
+                            if (temp.length === 2)
+                                m = temp[0] * 60 + Number(temp[1]);
+                            else
+                                m = temp[0];
+                            item.start_date = new Date();
+                            item.start_date.setMinutes(item.start_date.getMinutes() - m);
+                            time_to_start = '+' + m + 'm';
+                            break;
+                        case 'future':
+                            time_to_start = (item.start_date - new Date()) / 1000 / 60;
                             if (time_to_start < 60)
-                                time_to_start = Math.floor(time_to_start) + 'm';
+                                time_to_start = '-' + Math.floor(time_to_start) + 'm';
                             else if (time_to_start < 60 * 24)
                                 time_to_start = Math.floor(time_to_start / 60) + 'h';
                             else if (time_to_start < 60 * 24 * 7)
                                 time_to_start = Math.floor(time_to_start / 60 / 24) + 'd';
                             else
                                 time_to_start = Math.round(time_to_start / 60 / 24 / 7) + 'w'; break;
-                        case 'open':
-                            time_to_start = '-' + Math.floor(time_to_start) + 'm'; break;
-                        case 'onair':
-                            time_to_start = '+' + Math.floor(-time_to_start) + 'm'; break;
-                        case 'aired':
+                        case 'timeshift':
                             time_to_start = ''; break;
                     }
 
                     var caption = time_to_start
                         + ': ' + item.air_title.decodeHTMLEntities().replace(/&/g, '&&')
                         + ' (' + item.timeshift_count + ')'
-                        + '\t' + ('0' + (start_date.getMonth() + 1)).slice(-2)
-                        + '/' + ('0' + start_date.getDate()).slice(-2)
-                        + ' (' + ['日', '月', '火', '水', '木', '金', '土'][start_date.getDay()]
-                        + ') ' + ('0' + start_date.getHours()).slice(-2)
-                        + ':' + ('0' + start_date.getMinutes()).slice(-2)
-                        + ' (' + (open_date - start_date) / 1000 / 60 + 'm)';
+                        + '\t' + ('0' + (item.start_date.getMonth() + 1)).slice(-2)
+                        + '/' + ('0' + item.start_date.getDate()).slice(-2)
+                        + ' (' + ['日', '月', '火', '水', '木', '金', '土'][item.start_date.getDay()]
+                        + ') ' + ('0' + item.start_date.getHours()).slice(-2)
+                        + ':' + ('0' + item.start_date.getMinutes()).slice(-2)
+                        + (item.air_length ? ' (' + item.air_length + ')' : '');
 
                     return {
-                        Flag: item.status === 'open' || item.status === 'onair' ? MF_CHECKED : MF_STRING,
+                        Flag: time_to_start.indexOf('+') === 0 ? MF_CHECKED : MF_STRING,
                         Caption: caption,
-                        Func: function () { FuncCommand(utils.IsKeyPressed(VK_CONTROL) ? gate_url : url); }
+                        Func: function () { FuncCommand(url); }
                     };
                 }
 
