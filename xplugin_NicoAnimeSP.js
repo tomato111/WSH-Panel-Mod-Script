@@ -45,15 +45,20 @@
                     }
                 ];
 
+                var requestHeader = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0',
+                    'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' // キャッシュが邪魔をするので、強制的に最新データを取りに行く
+                }
+
                 // 放送中
                 getHTML(null, 'GET', 'https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=onair&sortOrder=recentDesc&providerTypes=official&providerTypes=channel',
-                    !ASYNC, 0, extractLiveInfo, { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' }); // キャッシュが邪魔をするので、強制的に最新データを取りに行く
+                    !ASYNC, 0, extractLiveInfo, requestHeader);
                 // 放送予定
                 getHTML(null, 'GET', 'https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=reserved&sortOrder=recentDesc&providerTypes=official&providerTypes=channel',
-                    !ASYNC, 0, extractLiveInfo, { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' });
+                    !ASYNC, 0, extractLiveInfo, requestHeader);
                 // タイムシフト
                 getHTML(null, 'GET', 'https://live.nicovideo.jp/search?keyword=%E3%83%8B%E3%82%B3%E3%83%8B%E3%82%B3%E3%82%A2%E3%83%8B%E3%83%A1%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB&status=past&sortOrder=recentDesc&providerTypes=official&providerTypes=channel',
-                    !ASYNC, 0, extractLiveInfo, { 'If-Modified-Since': 'Thu, 01 Jun 1970 00:00:00 GMT' });
+                    !ASYNC, 0, extractLiveInfo, requestHeader);
 
 
 
@@ -89,19 +94,22 @@
                         + '<span class="searchPage-ProgramList_DataIcon-timeshift"></span><span class="searchPage-ProgramList_DataText">(\\d+)</span>' // $6:タイムシフト予約数
                         , 'i'
                     );
-                    while (CutoutRE.test(res) && SearchRE.test(RegExp.lastMatch)) {
+                    while (CutoutRE.test(res)) {
                         //console2(RegExp.lastMatch);
-                        var item = {
-                            status: RegExp.$1,
-                            air_id: RegExp.$2,
-                            air_title: RegExp.$3,
-                            start_date: RegExp.$1 === 'live' ? RegExp.$4 : new Date(RegExp.$4),
-                            air_length: RegExp.$5,
-                            timeshift_count: RegExp.$6.replace(/^0$/, '※タイムシフトなし')
-                        };
-                        if (item.status === mode) {
-                            item = createLiveMenuItem(item);
-                            menu_items.push(item);
+                        if (SearchRE.test(RegExp.lastMatch)) {
+                            //console2(RegExp.lastMatch);
+                            var item = {
+                                status: RegExp.$1,
+                                air_id: RegExp.$2,
+                                air_title: RegExp.$3,
+                                start_date: RegExp.$1 === 'live' ? RegExp.$4 : new Date(RegExp.$4),
+                                air_length: RegExp.$5,
+                                timeshift_count: RegExp.$6.replace(/^0$/, '※タイムシフトなし')
+                            };
+                            if (item.status === mode) {
+                                item = createLiveMenuItem(item);
+                                menu_items.push(item);
+                            }
                         }
                     }
                 }
